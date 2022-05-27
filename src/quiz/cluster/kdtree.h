@@ -92,12 +92,12 @@ struct KdTree
 		
 		if(n->point[cd] < target[cd] + distanceTol)
 		{
-			kd_search_helper(n->left, target, distanceTol, depth+1, ids);
+			kd_search_helper(n->right, target, distanceTol, depth+1, ids);
 		}
 		
 		if(n->point[cd] > target[cd] - distanceTol)
 		{
-			kd_search_helper(n->right, target, distanceTol, depth+1, ids);
+			kd_search_helper(n->left, target, distanceTol, depth+1, ids);
 		}
 
 	}
