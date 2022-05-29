@@ -75,8 +75,28 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
     ProcessPointClouds<pcl::PointXYZI>* processor = new ProcessPointClouds<pcl::PointXYZI>();
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud = processor->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
-    renderPointCloud(viewer, cloud, "cityblock");
+    // renderPointCloud(viewer, cloud, "cityblock");
     processor->numPoints(cloud);
+
+    // Box box = processor->BoundingBox(cloud);
+    // Box box;
+    // box.x_min=-20;
+    // box.y_min=-8;
+    // box.z_min=-10;
+    // box.x_max=30;
+    // box.y_max=8;
+    // box.z_max=3;
+    // renderBox(viewer, box, 0);
+
+    // std::cout << box.x_min <<","<<box.y_min<<","<<box.z_min <<endl;
+    // std::cout << box.x_max <<","<<box.y_max<<","<<box.z_max <<endl;
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud = processor->FilterCloud(cloud,0.2,Eigen::Vector4f(-20.,-6.,-3.5,1.),Eigen::Vector4f(30.,6.,3.,1.));
+    renderPointCloud(viewer, filteredCloud, "filter cloud");
+    processor->numPoints(filteredCloud);
+
+    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult = processor->SegmentPlane(filteredCloud, 100, 0.2);
+    renderPointCloud(viewer, segResult.first, "plane", Color(0,1,0));
+    renderPointCloud(viewer, segResult.second, "obs", Color(1,0,0));
 }
 
 
