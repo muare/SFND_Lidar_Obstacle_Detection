@@ -90,13 +90,28 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
 
     // std::cout << box.x_min <<","<<box.y_min<<","<<box.z_min <<endl;
     // std::cout << box.x_max <<","<<box.y_max<<","<<box.z_max <<endl;
-    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud = processor->FilterCloud(cloud,0.2,Eigen::Vector4f(-20.,-6.,-3.5,1.),Eigen::Vector4f(30.,6.,3.,1.));
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filteredCloud = processor->FilterCloud(cloud,0.15,Eigen::Vector4f(-10.,-6.,-3.5,1.),Eigen::Vector4f(30.,6.,3.,1.));
     renderPointCloud(viewer, filteredCloud, "filter cloud");
     processor->numPoints(filteredCloud);
 
     std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segResult = processor->SegmentPlane(filteredCloud, 100, 0.2);
     renderPointCloud(viewer, segResult.first, "plane", Color(0,1,0));
-    renderPointCloud(viewer, segResult.second, "obs", Color(1,0,0));
+    // renderPointCloud(viewer, segResult.second, "obs", Color(1,0,0));
+
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = processor->Clustering(segResult.second, .3, 50, 10000 );
+    int clusterId = 0;
+    std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1)};
+
+    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : cloudClusters)
+    {
+        std::cout << "cluster size ";
+        processor->numPoints(cluster);
+        renderPointCloud(viewer,cluster,"obstCloud"+std::to_string(clusterId),colors[clusterId%3]);
+
+        Box box = processor->BoundingBox(cluster);
+        renderBox(viewer, box, clusterId);
+        ++clusterId;
+    }
 }
 
 
